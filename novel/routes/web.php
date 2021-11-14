@@ -1,4 +1,6 @@
 <?php
+use App\Book;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,9 +14,41 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    $books = Book::all();
+    return view('books', ['books' => $books]);
 });
 
+Route::post('/book', function(Request $request){
+    $validator = Validator::make($request->all(),[
+        'name' => 'required|max:225',
+    ]);
+    
+    if ($validator->fails()) {
+        return redirect('/')
+            ->withInput()
+            ->withErrors($validator);
+    } 
+    
+    $book = new Book;
+    $book->title = $request->name;
+    $book->save();
+    
+    return redirect('/');
+});
+
+
+Route::delete('/book/{book}', function(Book $book){
+    $book->delete();
+    
+    return redirect('/');
+});
+
+
+
+
+
+
+// 登録関連
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
